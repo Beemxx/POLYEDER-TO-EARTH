@@ -170,7 +170,7 @@ button:hover{transform:scale(1.02);}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzNUJKExoidTdX_fu7Y1CeS05pbMkzcZ8IrSASE9soWo2dUWPgDs5z5yrYURwQyjh2/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLN-R6Oy6c-zOhxvWaraztHqimXIqdfOjvYPIseXU1YVUifDOyHYLL9Zd4Zikh_aWg/exec";
 
 function togglePassword(){
   let p = document.getElementById("password");
@@ -206,6 +206,7 @@ function login(){
     if(s) s.remove();
 
     if(result === "OK"){
+      currentUser = u;
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("app").style.display = "block";
     } else {
@@ -289,6 +290,29 @@ let storedUTM    = [];
 let storedLatLon = [];
 let leafletMap   = null;
 const letters    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let currentUser  = "";
+
+function saveToSheet(rawInput, utmOutput, luasText){
+  const cbName = "save_cb_" + Date.now();
+  const script = document.createElement("script");
+
+  window[cbName] = function(result){
+    delete window[cbName];
+    let s = document.getElementById("save_script");
+    if(s) s.remove();
+  };
+
+  script.id  = "save_script";
+  script.src = SCRIPT_URL
+    + "?action=save"
+    + "&username=" + encodeURIComponent(currentUser)
+    + "&raw="       + encodeURIComponent(rawInput)
+    + "&converted=" + encodeURIComponent(utmOutput)
+    + "&luas="      + encodeURIComponent(luasText)
+    + "&callback="  + cbName;
+
+  document.body.appendChild(script);
+}
 
 function previewMap(){
   if(typeof L === "undefined"){
@@ -328,6 +352,10 @@ function previewMap(){
   let areaEl = document.getElementById("area");
   areaEl.style.display = "block";
   areaEl.textContent = "📐 Luas Bidang : " + area.toFixed(2) + " m²  ( " + (area/10000).toFixed(4) + " Ha )";
+
+  // Simpan ke Sheets & kirim notif email
+  let rawInput  = document.getElementById("input").value.trim();
+  saveToSheet(rawInput, output.trim(), area.toFixed(2) + " m² / " + (area/10000).toFixed(4) + " Ha");
 
   document.getElementById("mapContainer").style.display = "block";
   document.getElementById("mapLabel").style.display     = "block";
