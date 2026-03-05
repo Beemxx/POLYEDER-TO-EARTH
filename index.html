@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PL Batam Converter - Farhan Rizky</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:20px;
+  color:white;
+}
+
+.container{
+  width:100%;
+  max-width:720px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  border-radius:20px;
+  padding:30px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.4);
+  animation:fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+h1{font-size:26px;font-weight:700;margin-bottom:8px;}
+.subtitle{font-size:14px;opacity:0.8;margin-bottom:20px;}
+
+input,textarea{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  margin-top:8px;
+  font-family:'Poppins',sans-serif;
+  font-size:14px;
+  outline:none;
+}
+
+textarea{height:160px;resize:none;}
+
+.btn-row{display:flex;gap:10px;margin-top:15px;}
+
+button{
+  flex:1;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+  color:white;
+  transition:0.3s;
+}
+
+button:hover{transform:scale(1.02);}
+
+#btnPreview{
+  background:linear-gradient(90deg,#11998e,#38ef7d);
+  color:#0f2027;
+}
+
+#btnDownload{
+  background:linear-gradient(90deg,#ff416c,#ff4b2b);
+  display:none;
+}
+
+.result{
+  margin-top:15px;
+  background:rgba(255,255,255,0.1);
+  padding:12px 15px;
+  border-radius:10px;
+  white-space:pre-wrap;
+  font-size:13px;
+  display:none;
+}
+
+.area-box{
+  margin-top:10px;
+  background:rgba(255,255,255,0.15);
+  padding:12px 15px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:600;
+  display:none;
+}
+
+#mapContainer{
+  margin-top:20px;
+  border-radius:14px;
+  overflow:hidden;
+  height:380px;
+  display:none;
+  border:2px solid rgba(255,255,255,0.15);
+  position:relative;
+}
+
+#map{height:100%;width:100%;}
+
+.map-label{
+  font-size:12px;
+  opacity:0.6;
+  margin-top:6px;
+  text-align:center;
+  display:none;
+}
+
+.showpass{margin-top:10px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.error{color:#ff6b6b;font-size:13px;margin-top:8px;}
+.footer{margin-top:20px;font-size:12px;opacity:0.6;text-align:center;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="container" id="loginBox">
+  <h1>🔐 Login</h1>
+  <div class="subtitle">PL Batam Converter Access</div>
+  <input id="username" placeholder="Username" />
+  <input type="password" id="password" placeholder="Password" />
+  <label class="showpass">
+    <input type="checkbox" onchange="togglePassword()"> Show Password
+  </label>
+  <button onclick="login()" style="margin-top:15px;background:linear-gradient(90deg,#ff416c,#ff4b2b);">Login</button>
+  <div class="error" id="loginResult"></div>
+</div>
+
+<!-- APP -->
+<div class="container" id="app" style="display:none">
+  <h1>📍 PL Batam Converter</h1>
+  <div class="subtitle">
+    Professional Coordinate System Tool<br>
+    Created by <b>Farhan Rizky</b>
+  </div>
+
+  <textarea id="input" placeholder="Masukkan koordinat PL (X,Y) per baris&#10;Contoh:&#10;2906.080,-3465.057&#10;2882.905,-3474.441"></textarea>
+
+  <div class="btn-row">
+    <button id="btnPreview" onclick="previewMap()">🗺 Preview Peta</button>
+    <button id="btnDownload" onclick="downloadKML()">⬇️ Download KML</button>
+  </div>
+
+  <div class="result" id="output"></div>
+  <div class="area-box" id="area"></div>
+
+  <div id="mapContainer">
+    <div id="map"></div>
+  </div>
+  <div class="map-label" id="mapLabel">
+    🛰 Peta Satelit Esri — zoom & geser untuk cek posisi, lalu klik Download KML
+  </div>
+
+  <div class="footer">© 2026 Farhan Rizky | UTM Zone 48N WGS84 | Batam</div>
+</div>
+
+<!-- Leaflet dimuat SEBELUM script utama -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzNUJKExoidTdX_fu7Y1CeS05pbMkzcZ8IrSASE9soWo2dUWPgDs5z5yrYURwQyjh2/exec";
+
+function togglePassword(){
+  let p = document.getElementById("password");
+  p.type = p.type === "password" ? "text" : "password";
+}
+
+function login(){
+  let u = document.getElementById("username").value.trim();
+  let p = document.getElementById("password").value.trim();
+  let btn = document.querySelector("#loginBox button");
+  let resultEl = document.getElementById("loginResult");
+
+  if(!u || !p){
+    resultEl.textContent = "⚠️ Username dan password tidak boleh kosong.";
+    return;
+  }
+
+  btn.textContent = "Memeriksa...";
+  btn.disabled = true;
+  resultEl.textContent = "";
+
+  // Hapus script JSONP lama kalau ada
+  let oldScript = document.getElementById("jsonp_script");
+  if(oldScript) oldScript.remove();
+
+  // Buat nama callback unik
+  const cbName = "jsonp_cb_" + Date.now();
+
+  // Callback global
+  window[cbName] = function(result){
+    delete window[cbName];
+    let s = document.getElementById("jsonp_script");
+    if(s) s.remove();
+
+    if(result === "OK"){
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("app").style.display = "block";
+    } else {
+      resultEl.textContent = "❌ Username atau password salah";
+      btn.textContent = "Login";
+      btn.disabled = false;
+    }
+  };
+
+  // Inject script tag
+  let script = document.createElement("script");
+  script.id  = "jsonp_script";
+  script.src = SCRIPT_URL
+    + "?u=" + encodeURIComponent(u)
+    + "&p=" + encodeURIComponent(p)
+    + "&callback=" + cbName;
+
+  script.onerror = function(){
+    delete window[cbName];
+    script.remove();
+    resultEl.textContent = "⚠️ Gagal terhubung, cek koneksi internet.";
+    btn.textContent = "Login";
+    btn.disabled = false;
+  };
+
+  document.body.appendChild(script);
+}
+
+function PLtoUTM(x, y){
+  let E = 386103.9199999999
+        + (1.0000009999999987 * x)
+        + (0.0000020000000001 * y);
+  let N = 128910.05799999999
+        + (0.0000020000000000 * x)
+        + (0.9999999999999989 * y);
+  return [E, N];
+}
+
+function UTMtoLatLon(E, N){
+  const a  = 6378137.0;
+  const e  = 0.081819190842622;
+  const k0 = 0.9996;
+  const zone = 48;
+  const λ0 = ((zone - 1)*6 - 180 + 3) * Math.PI/180;
+
+  let x = E - 500000;
+  let y = N;
+
+  let M  = y / k0;
+  let μ  = M / (a*(1 - e*e/4 - 3*e**4/64 - 5*e**6/256));
+  let e1 = (1 - Math.sqrt(1 - e*e)) / (1 + Math.sqrt(1 - e*e));
+
+  let fp = μ
+    + (3*e1/2 - 27*e1**3/32)*Math.sin(2*μ)
+    + (21*e1**2/16 - 55*e1**4/32)*Math.sin(4*μ);
+
+  let C1 = (e*e/(1-e*e))*Math.cos(fp)**2;
+  let T1 = Math.tan(fp)**2;
+  let N1 = a / Math.sqrt(1 - e*e*Math.sin(fp)**2);
+  let R1 = a*(1-e*e) / Math.pow(1 - e*e*Math.sin(fp)**2, 1.5);
+  let D  = x / (N1*k0);
+
+  let lat = fp - (N1*Math.tan(fp)/R1)*
+    (D*D/2 - (5+3*T1+10*C1-4*C1*C1-9*(e*e/(1-e*e)))*D**4/24);
+  let lon = λ0 + (D - (1+2*T1+C1)*D**3/6)/Math.cos(fp);
+
+  return [lat*180/Math.PI, lon*180/Math.PI];
+}
+
+function polygonArea(points){
+  let area = 0;
+  for(let i = 0; i < points.length; i++){
+    let j = (i+1) % points.length;
+    area += points[i][0]*points[j][1];
+    area -= points[j][0]*points[i][1];
+  }
+  return Math.abs(area/2);
+}
+
+let storedUTM    = [];
+let storedLatLon = [];
+let leafletMap   = null;
+const letters    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function previewMap(){
+  if(typeof L === "undefined"){
+    alert("Library peta belum siap, coba refresh halaman.");
+    return;
+  }
+
+  let lines = document.getElementById("input").value.trim().split("\n");
+  storedUTM    = [];
+  storedLatLon = [];
+  let output   = "";
+
+  lines.forEach((line, i) => {
+    let parts = line.trim().split(",");
+    if(parts.length === 2){
+      let x = parseFloat(parts[0]);
+      let y = parseFloat(parts[1]);
+      if(isNaN(x) || isNaN(y)) return;
+      let utm    = PLtoUTM(x, y);
+      let latlon = UTMtoLatLon(utm[0], utm[1]);
+      storedUTM.push(utm);
+      storedLatLon.push(latlon);
+      output += letters[i] + " : " + utm[0].toFixed(3) + " , " + utm[1].toFixed(3) + "\n";
+    }
+  });
+
+  let outEl = document.getElementById("output");
+  outEl.style.display = "block";
+  outEl.textContent = output || "Tidak ada data valid.";
+
+  if(storedUTM.length < 3){
+    alert("Minimal 3 titik koordinat diperlukan.");
+    return;
+  }
+
+  let area = polygonArea(storedUTM);
+  let areaEl = document.getElementById("area");
+  areaEl.style.display = "block";
+  areaEl.textContent = "📐 Luas Bidang : " + area.toFixed(2) + " m²  ( " + (area/10000).toFixed(4) + " Ha )";
+
+  document.getElementById("mapContainer").style.display = "block";
+  document.getElementById("mapLabel").style.display     = "block";
+  document.getElementById("btnDownload").style.display  = "block";
+
+  if(leafletMap){ leafletMap.remove(); leafletMap = null; }
+
+  leafletMap = L.map("map", { zoomControl:true });
+
+  L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    { attribution:"Tiles © Esri", maxZoom:20, maxNativeZoom:19 }
+  ).addTo(leafletMap);
+
+  L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+    { opacity:0.7, maxZoom:20, maxNativeZoom:19 }
+  ).addTo(leafletMap);
+
+  let latlngs = storedLatLon.map(p => [p[0], p[1]]);
+  let polygon = L.polygon(latlngs, {
+    color:"#ff416c", weight:3,
+    fillColor:"#ff416c", fillOpacity:0.3
+  }).addTo(leafletMap);
+
+  storedLatLon.forEach((p, i) => {
+    let icon = L.divIcon({
+      className:"",
+      html:`<div style="background:#ff416c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.6);font-family:Poppins,sans-serif;">${letters[i]}</div>`,
+      iconSize:[24,24], iconAnchor:[12,12]
+    });
+    L.marker([p[0],p[1]],{icon}).addTo(leafletMap);
+  });
+
+  leafletMap.fitBounds(polygon.getBounds(), {padding:[40,40]});
+  setTimeout(()=>{ leafletMap.invalidateSize(); }, 400);
+}
+
+function downloadKML(){
+  if(storedLatLon.length < 3){ alert("Lakukan Preview terlebih dahulu."); return; }
+
+  let kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+<n>PL Batam - Farhan Rizky</n>
+<Style id="polyStyle">
+<LineStyle><color>ff000000</color><width>3</width></LineStyle>
+<PolyStyle><color>b3ff0000</color></PolyStyle>
+</Style>
+<Placemark>
+<n>Bidang - Farhan Rizky</n>
+<styleUrl>#polyStyle</styleUrl>
+<Polygon>
+<outerBoundaryIs><LinearRing><coordinates>`;
+
+  storedLatLon.forEach(p => { kml += `${p[1]},${p[0]},0 `; });
+  kml += `${storedLatLon[0][1]},${storedLatLon[0][0]},0`;
+  kml += `</coordinates></LinearRing></outerBoundaryIs>\n</Polygon>\n</Placemark>\n</Document></kml>`;
+
+  let blob = new Blob([kml], {type:"application/vnd.google-earth.kml+xml"});
+  let link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "PL_Batam_Farhan_Rizky.kml";
+  link.click();
+}
+</script>
+
+</body>
+</html>
