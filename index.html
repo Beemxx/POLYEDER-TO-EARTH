@@ -51,7 +51,7 @@ input,textarea{
   background:rgba(255,255,255,0.92);
   color:#1a1a2e;
 }
-textarea{height:160px;resize:none;}
+textarea{height:160px;resize:none;line-height:1.8;font-family:'Courier New',Courier,monospace;font-size:13.5px;letter-spacing:0;}
 
 .btn-row{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap;}
 
@@ -151,6 +151,70 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 .showpass{margin-top:10px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;}
 .error{color:#ff6b6b;font-size:13px;margin-top:8px;}
 .footer{margin-top:20px;font-size:12px;opacity:0.6;text-align:center;}
+
+/* KML Settings Modal */
+#kmlModal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);
+  z-index:9999;justify-content:center;align-items:center;padding:16px;
+}
+#kmlModal.show{display:flex;}
+.kml-box{
+  background:linear-gradient(145deg,#162030,#1e3045);
+  border:1px solid rgba(255,255,255,0.12);border-radius:18px;
+  padding:26px;width:100%;max-width:400px;
+  box-shadow:0 24px 70px rgba(0,0,0,0.7);animation:fadeIn 0.3s ease;
+}
+.kml-box h3{font-size:17px;font-weight:700;margin-bottom:4px;}
+.kml-box .kml-sub{font-size:12px;opacity:0.55;margin-bottom:20px;}
+
+.kml-field{margin-bottom:16px;}
+.kml-field label{display:block;font-size:12px;font-weight:600;opacity:0.75;margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;}
+.kml-field input[type=text]{
+  background:rgba(255,255,255,0.1);color:white;
+  border:1px solid rgba(255,255,255,0.2);border-radius:8px;
+  padding:10px 12px;width:100%;font-size:14px;margin-top:0;
+}
+.kml-field input[type=text]:focus{border-color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.15);}
+.kml-field input[type=text]::placeholder{color:rgba(255,255,255,0.35);}
+
+/* Color + opacity row */
+.kml-row{display:flex;gap:12px;align-items:flex-end;}
+.kml-row .kml-field{flex:1;margin-bottom:0;}
+
+.color-wrap{
+  position:relative;width:100%;height:42px;border-radius:8px;
+  overflow:hidden;border:1px solid rgba(255,255,255,0.2);cursor:pointer;
+}
+.color-wrap input[type=color]{
+  position:absolute;inset:-6px;width:calc(100%+12px);height:calc(100%+12px);
+  border:none;padding:0;cursor:pointer;background:none;margin:0;
+}
+
+.opacity-wrap{display:flex;align-items:center;gap:10px;}
+.opacity-wrap input[type=range]{
+  flex:1;height:4px;accent-color:#38ef7d;cursor:pointer;
+}
+.opacity-val{font-size:13px;font-weight:600;min-width:36px;text-align:right;color:#38ef7d;}
+
+/* Preview swatch */
+.preview-swatch{
+  margin:16px 0 20px;border-radius:10px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.swatch-line{height:10px;}
+.swatch-fill{height:36px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
+
+.kml-btn-row{display:flex;gap:10px;}
+#btnDoDownload{
+  background:linear-gradient(90deg,#ff416c,#ff4b2b);
+  flex:2;padding:12px;border:none;border-radius:10px;
+  font-weight:700;color:white;cursor:pointer;font-size:14px;transition:0.2s;
+}
+#btnDoDownload:hover{transform:scale(1.02);}
+#btnCancelKml{
+  background:rgba(255,255,255,0.08);flex:1;padding:12px;
+  border:none;border-radius:10px;font-weight:600;color:white;cursor:pointer;font-size:14px;
+}
 </style>
 </head>
 <body>
@@ -183,10 +247,11 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
   <div class="btn-row">
     <button id="btnPreview"  onclick="previewMap()">🗺 Preview Peta</button>
-    <button id="btnDrag"     onclick="toggleDragMode()">✋ Geser Polygon</button>
     <button id="btnDownload" onclick="downloadKML()">⬇️ Download KML</button>
-    <button id="btnSave"     onclick="openAdminModal()">💾 Kalibrasi & Simpan</button>
-    <button id="btnResetOffset" onclick="resetOffset()">🔄 Reset Kalibrasi</button>
+    <!-- Semua tombol admin disembunyikan — akses via 5x tap footer -->
+    <button id="btnDrag"     onclick="toggleDragMode()" style="display:none!important;pointer-events:none;position:absolute;opacity:0;"></button>
+    <button id="btnSave"     onclick="openAdminModal()" style="display:none!important;pointer-events:none;position:absolute;opacity:0;"></button>
+    <button id="btnResetOffset" onclick="resetOffset()" style="display:none!important;pointer-events:none;position:absolute;opacity:0;"></button>
   </div>
 
   <div id="dragInfo">
@@ -199,10 +264,10 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
   <div id="mapContainer"><div id="map"></div></div>
   <div class="map-label" id="mapLabel">
-    🛰 Peta Satelit Esri — zoom & geser untuk cek posisi
+    🛰 Peta Satelit Google — zoom & geser untuk cek posisi
   </div>
 
-  <div class="footer">© 2026 Farhan Rizky | UTM Zone 48N WGS84 | Batam</div>
+  <div class="footer" id="secretFooter" onclick="secretTap()" style="cursor:default;user-select:none;">© 2026 Farhan Rizky | UTM Zone 48N WGS84 | Batam <span id="secretDot" style="opacity:0;font-size:10px;">·</span></div>
 </div>
 
 <!-- ADMIN SAVE MODAL -->
@@ -217,6 +282,52 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
     <div class="modal-btn-row">
       <button id="btnCancelModal" onclick="closeAdminModal()">Batal</button>
       <button id="btnConfirmSave" onclick="confirmSave()">Simpan Kalibrasi</button>
+    </div>
+  </div>
+</div>
+
+<!-- KML SETTINGS MODAL -->
+<div id="kmlModal">
+  <div class="kml-box">
+    <h3>⬇️ Pengaturan Download KML</h3>
+    <div class="kml-sub">Atur tampilan dan nama sebelum download</div>
+
+    <div class="kml-field">
+      <label>Nama Project</label>
+      <input type="text" id="kmlProjectName" placeholder="Contoh: Bidang A - Jl. Dapur 12" />
+    </div>
+
+    <div class="kml-row">
+      <div class="kml-field">
+        <label>Warna Garis</label>
+        <div class="color-wrap">
+          <input type="color" id="kmlLineColor" value="#ff0000" oninput="updateKmlPreview()"/>
+        </div>
+      </div>
+      <div class="kml-field">
+        <label>Warna Area</label>
+        <div class="color-wrap">
+          <input type="color" id="kmlFillColor" value="#ff0000" oninput="updateKmlPreview()"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="kml-field" style="margin-top:14px;">
+      <label>Transparansi Area</label>
+      <div class="opacity-wrap">
+        <input type="range" id="kmlOpacity" min="0" max="100" value="40" oninput="updateKmlPreview()"/>
+        <span class="opacity-val" id="opacityVal">40%</span>
+      </div>
+    </div>
+
+    <div class="preview-swatch">
+      <div class="swatch-line" id="swatchLine"></div>
+      <div class="swatch-fill" id="swatchFill">Preview Area</div>
+    </div>
+
+    <div class="kml-btn-row">
+      <button id="btnCancelKml" onclick="closeKmlModal()">Batal</button>
+      <button id="btnDoDownload" onclick="doDownloadKML()">⬇️ Download KML</button>
     </div>
   </div>
 </div>
@@ -277,15 +388,12 @@ function renderOffsetBanner(){
   if(hasOffset){
     banner.style.display = "block";
     banner.innerHTML =
-      `✅ <b>Kalibrasi Aktif</b> — Offset UTM tersimpan:<br>` +
-      `ΔE = <b>${offsetUTM.dE >= 0 ? "+" : ""}${offsetUTM.dE.toFixed(3)} m</b> &nbsp;|&nbsp; ` +
-      `ΔN = <b>${offsetUTM.dN >= 0 ? "+" : ""}${offsetUTM.dN.toFixed(3)} m</b><br>` +
-      `<span style="font-size:11px;opacity:0.75;">Semua konversi PL→UTM berikutnya otomatis menggunakan offset ini.</span>`;
-    document.getElementById("btnResetOffset").style.display = "block";
+      `✅ <b>Kalibrasi Aktif</b><br>` +
+      `<span style="font-size:11px;opacity:0.75;">Konversi PL→UTM telah dikalibrasi untuk area Batam.</span>`;
   } else {
     banner.style.display = "none";
-    document.getElementById("btnResetOffset").style.display = "none";
   }
+  // Tombol reset selalu tersembunyi dari UI — hanya via secret tap
 }
 
 // ============================================================
@@ -422,7 +530,8 @@ function previewMap(){
   sessionOffsetLat=0; sessionOffsetLng=0;
   let output="";
 
-  lines.forEach((line,i)=>{
+  let idx=0;
+  lines.forEach((line)=>{
     let parts=line.trim().split(",");
     if(parts.length===2){
       let x=parseFloat(parts[0]),y=parseFloat(parts[1]);
@@ -433,7 +542,8 @@ function previewMap(){
       storedUTM_raw.push(raw);
       storedUTM.push(withOffset);
       storedLatLon.push(latlon);
-      output+=letters[i]+" : "+withOffset[0].toFixed(3)+" , "+withOffset[1].toFixed(3)+"\n";
+      output+=letters[idx]+" : "+withOffset[0].toFixed(3)+" , "+withOffset[1].toFixed(3)+"\n";
+      idx++;
     }
   });
 
@@ -454,8 +564,7 @@ function previewMap(){
   document.getElementById("mapContainer").style.display="block";
   document.getElementById("mapLabel").style.display="block";
   document.getElementById("btnDownload").style.display="block";
-  document.getElementById("btnDrag").style.display="block";
-  document.getElementById("btnSave").style.display="block";
+  // btnDrag & btnSave tersembunyi — diakses via secret tap
   document.getElementById("saveStatus").style.display="none";
 
   // Reset drag button
@@ -474,10 +583,10 @@ function previewMap(){
 function buildMap(){
   if(leafletMap){leafletMap.remove();leafletMap=null;}
   leafletMap=L.map("map",{zoomControl:true});
-  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    {attribution:"Tiles © Esri",maxZoom:20,maxNativeZoom:19}).addTo(leafletMap);
-  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-    {opacity:0.7,maxZoom:20,maxNativeZoom:19}).addTo(leafletMap);
+  L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+    {attribution:"© Google",maxZoom:21,maxNativeZoom:21}).addTo(leafletMap);
+  L.tileLayer("https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}",
+    {opacity:0.8,maxZoom:21,maxNativeZoom:21}).addTo(leafletMap);
 
   drawPolygon();
   leafletMap.fitBounds(polygon.getBounds(),{padding:[40,40]});
@@ -687,29 +796,159 @@ function saveToSheet(rawInput, utmOutput, luasText){
 }
 
 // ============================================================
-//  DOWNLOAD KML
+//  KML SETTINGS MODAL
 // ============================================================
 function downloadKML(){
   if(storedLatLon.length<3){alert("Lakukan Preview terlebih dahulu.");return;}
+  // Reset ke default lalu buka modal
+  document.getElementById("kmlProjectName").value = "";
+  document.getElementById("kmlLineColor").value   = "#ff0000";
+  document.getElementById("kmlFillColor").value   = "#ff0000";
+  document.getElementById("kmlOpacity").value     = "40";
+  updateKmlPreview();
+  document.getElementById("kmlModal").classList.add("show");
+  setTimeout(()=>document.getElementById("kmlProjectName").focus(), 100);
+}
+
+function closeKmlModal(){
+  document.getElementById("kmlModal").classList.remove("show");
+}
+
+function updateKmlPreview(){
+  let lineColor = document.getElementById("kmlLineColor").value;
+  let fillColor = document.getElementById("kmlFillColor").value;
+  let opacity   = parseInt(document.getElementById("kmlOpacity").value);
+  document.getElementById("opacityVal").textContent = opacity + "%";
+
+  // Update swatch
+  document.getElementById("swatchLine").style.background = lineColor;
+
+  // Convert hex + opacity to rgba for swatch
+  let r = parseInt(fillColor.slice(1,3),16);
+  let g = parseInt(fillColor.slice(3,5),16);
+  let b = parseInt(fillColor.slice(5,7),16);
+  let a = opacity / 100;
+  document.getElementById("swatchFill").style.background = `rgba(${r},${g},${b},${a})`;
+  document.getElementById("swatchFill").style.color = a > 0.5 ? "#fff" : "rgba(255,255,255,0.8)";
+
+  // Live update polygon on map
+  if(polygon){
+    polygon.setStyle({
+      color: lineColor,
+      fillColor: fillColor,
+      fillOpacity: a
+    });
+  }
+}
+
+function hexToKmlColor(hex, opacityPercent){
+  // KML color format: aabbggrr (alpha, blue, green, red) in hex
+  let alpha = Math.round((opacityPercent / 100) * 255).toString(16).padStart(2,"0");
+  let r = hex.slice(1,3);
+  let g = hex.slice(3,5);
+  let b = hex.slice(5,7);
+  return alpha + b + g + r;
+}
+
+function hexToKmlColorFF(hex){
+  // Full opacity for line
+  let r = hex.slice(1,3);
+  let g = hex.slice(3,5);
+  let b = hex.slice(5,7);
+  return "ff" + b + g + r;
+}
+
+function doDownloadKML(){
+  let projectName = document.getElementById("kmlProjectName").value.trim() || "Bidang - Farhan Rizky";
+  let lineColor   = document.getElementById("kmlLineColor").value;
+  let fillColor   = document.getElementById("kmlFillColor").value;
+  let opacity     = parseInt(document.getElementById("kmlOpacity").value);
+
+  let kmlLineColor = hexToKmlColorFF(lineColor);
+  let kmlFillColor = hexToKmlColor(fillColor, opacity);
+
   let kml=`<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
 <Document>
-<n>PL Batam - Farhan Rizky</n>
+<name>${projectName}</name>
 <Style id="polyStyle">
-<LineStyle><color>ff000000</color><width>3</width></LineStyle>
-<PolyStyle><color>b3ff0000</color></PolyStyle>
+<LineStyle><color>${kmlLineColor}</color><width>3</width></LineStyle>
+<PolyStyle><color>${kmlFillColor}</color></PolyStyle>
 </Style>
 <Placemark>
-<n>Bidang - Farhan Rizky</n>
+<name>${projectName}</name>
 <styleUrl>#polyStyle</styleUrl>
 <Polygon>
 <outerBoundaryIs><LinearRing><coordinates>`;
   storedLatLon.forEach(p=>{kml+=`${p[1]},${p[0]},0 `;});
   kml+=`${storedLatLon[0][1]},${storedLatLon[0][0]},0`;
   kml+=`</coordinates></LinearRing></outerBoundaryIs>\n</Polygon>\n</Placemark>\n</Document></kml>`;
+
+  let safeName = projectName.replace(/[^a-zA-Z0-9_\- ]/g,"").trim() || "PL_Batam";
   let blob=new Blob([kml],{type:"application/vnd.google-earth.kml+xml"});
   let link=document.createElement("a");
-  link.href=URL.createObjectURL(blob); link.download="PL_Batam_Farhan_Rizky.kml"; link.click();
+  link.href=URL.createObjectURL(blob);
+  link.download = safeName.replace(/ /g,"_") + ".kml";
+  link.click();
+  closeKmlModal();
+}
+
+// ============================================================
+//  SECRET TAP — ketuk footer 5x cepat untuk buka kalibrasi
+// ============================================================
+let tapCount = 0;
+let tapTimer = null;
+
+function secretTap(){
+  tapCount++;
+  let dot = document.getElementById("secretDot");
+  dot.style.opacity = "1";
+  setTimeout(()=>{ dot.style.opacity="0"; }, 200);
+
+  if(tapTimer) clearTimeout(tapTimer);
+
+  if(tapCount >= 5){
+    tapCount = 0;
+    if(storedLatLon.length < 3){
+      alert("⚙️ Menu Admin\n\nLakukan Preview Peta terlebih dahulu.");
+      return;
+    }
+    let pilihan = prompt(
+      "⚙️ Menu Admin\n\n" +
+      (dragActive ? "1 = Kunci / Nonaktifkan Geser\n" : "1 = Geser Polygon\n") +
+      "2 = Kalibrasi & Simpan Offset\n" +
+      "3 = Reset Kalibrasi ke 0\n\n" +
+      "Ketik angka pilihan:"
+    );
+    if(pilihan === null) return;
+    pilihan = pilihan.trim();
+    if(pilihan === "1"){
+      toggleDragMode();
+    } else if(pilihan === "2"){
+      openAdminModal();
+    } else if(pilihan === "3"){
+      resetOffsetAdmin();
+    } else {
+      alert("Pilihan tidak valid.");
+    }
+  } else {
+    tapTimer = setTimeout(()=>{ tapCount=0; }, 1500);
+  }
+}
+
+function resetOffsetAdmin(){
+  let code = prompt("Masukkan kode admin untuk reset kalibrasi:");
+  if(code === null) return;
+  if(code.trim() !== ADMIN_CODE){ alert("❌ Kode admin salah!"); return; }
+  offsetUTM = {dE:0, dN:0};
+  localStorage.removeItem(OFFSET_KEY);
+  sessionOffsetLat=0; sessionOffsetLng=0;
+  renderOffsetBanner();
+  let inp = document.getElementById("input").value.trim();
+  if(inp && document.getElementById("mapContainer").style.display !== "none") previewMap();
+  let ss = document.getElementById("saveStatus");
+  ss.className="ok"; ss.style.display="block";
+  ss.textContent="🔄 Kalibrasi direset ke 0.";
 }
 
 // ============================================================
@@ -719,6 +958,7 @@ document.addEventListener("keydown",function(e){
   let modal=document.getElementById("adminModal");
   if(e.key==="Enter" && modal.classList.contains("show")) confirmSave();
   if(e.key==="Escape" && modal.classList.contains("show")) closeAdminModal();
+  if(e.key==="Escape" && document.getElementById("kmlModal").classList.contains("show")) closeKmlModal();
 });
 </script>
 </body>
