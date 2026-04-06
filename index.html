@@ -339,44 +339,77 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 // ============================================================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLN-R6Oy6c-zOhxvWaraztHqimXIqdfOjvYPIseXU1YVUifDOyHYLL9Zd4Zikh_aWg/exec";
 const ADMIN_CODE = "FARHAN2026";          // <-- ganti kode admin di sini
-const OFFSET_KEY = "pl_batam_offset";     // localStorage key
+const OFFSET_KEY = "pl_batam_offset";     // localStorage cache key
 
 // ============================================================
 //  OFFSET STATE
 //  offsetUTM = {dE, dN}  — selisih meter di sistem UTM
-//  Dibaca dari localStorage saat load, disimpan saat admin save
+//  Sumber kebenaran: Google Sheets (shared semua user)
+//  localStorage hanya sebagai cache offline fallback
 // ============================================================
 let offsetUTM = {dE: 0, dN: 0};
 
+// Load offset dari Google Sheets (sumber utama), fallback ke localStorage
 function loadOffset(){
+  // Tampilkan cache dulu agar UI tidak kosong
   try {
     let raw = localStorage.getItem(OFFSET_KEY);
     if(raw){
       let o = JSON.parse(raw);
       if(typeof o.dE === "number" && typeof o.dN === "number"){
         offsetUTM = o;
+        renderOffsetBanner();
       }
     }
   } catch(e){}
-  renderOffsetBanner();
+
+  // Fetch nilai terbaru dari Sheets
+  const cbName = "offset_load_cb_" + Date.now();
+  const script = document.createElement("script");
+  window[cbName] = function(result){
+    delete window[cbName];
+    let s = document.getElementById("offset_load_script"); if(s) s.remove();
+    if(result && typeof result.dE === "number" && typeof result.dN === "number"){
+      offsetUTM = {dE: result.dE, dN: result.dN};
+      // Update cache lokal
+      try { localStorage.setItem(OFFSET_KEY, JSON.stringify(offsetUTM)); } catch(e){}
+      renderOffsetBanner();
+    }
+  };
+  script.id = "offset_load_script";
+  script.src = SCRIPT_URL + "?action=getOffset&callback=" + cbName;
+  script.onerror = function(){ delete window[cbName]; script.remove(); };
+  document.body.appendChild(script);
 }
 
+// Simpan offset ke Google Sheets DAN localStorage cache
 function saveOffsetToStorage(dE, dN){
   offsetUTM = {dE, dN};
-  localStorage.setItem(OFFSET_KEY, JSON.stringify(offsetUTM));
+  // Simpan cache lokal
+  try { localStorage.setItem(OFFSET_KEY, JSON.stringify(offsetUTM)); } catch(e){}
   renderOffsetBanner();
+
+  // Simpan ke Sheets (shared ke semua user)
+  const cbName = "offset_save_cb_" + Date.now();
+  const script = document.createElement("script");
+  window[cbName] = function(){ delete window[cbName]; let s=document.getElementById("offset_save_script");if(s)s.remove(); };
+  script.id = "offset_save_script";
+  script.src = SCRIPT_URL
+    + "?action=saveOffset"
+    + "&dE=" + encodeURIComponent(dE.toFixed(6))
+    + "&dN=" + encodeURIComponent(dN.toFixed(6))
+    + "&callback=" + cbName;
+  script.onerror = function(){ delete window[cbName]; script.remove(); };
+  document.body.appendChild(script);
 }
 
 function resetOffset(){
   if(!confirm("Reset kalibrasi offset ke 0? Hanya admin yang seharusnya melakukan ini.")) return;
-  offsetUTM = {dE:0, dN:0};
-  localStorage.removeItem(OFFSET_KEY);
+  saveOffsetToStorage(0, 0);  // reset ke Sheets + cache
+  try { localStorage.removeItem(OFFSET_KEY); } catch(e){}
   renderOffsetBanner();
-  // Re-preview jika ada input
   let inp = document.getElementById("input").value.trim();
-  if(inp && document.getElementById("mapContainer").style.display !== "none"){
-    previewMap();
-  }
+  if(inp && document.getElementById("mapContainer").style.display !== "none") previewMap();
   let ss = document.getElementById("saveStatus");
   ss.className="ok"; ss.style.display="block";
   ss.textContent="🔄 Kalibrasi direset ke 0 oleh admin.";
@@ -774,7 +807,7 @@ function confirmSave(){
   // Tampilkan sukses
   let ss=document.getElementById("saveStatus");
   ss.className="ok"; ss.style.display="block";
-  ss.textContent="✅ Kalibrasi offset berhasil disimpan! Semua konversi berikutnya otomatis terkoreksi.";
+  ss.textContent="✅ Kalibrasi disimpan ke server! Semua pengguna lain akan otomatis mendapat offset baru saat login.";
 }
 
 // ============================================================
@@ -940,15 +973,15 @@ function resetOffsetAdmin(){
   let code = prompt("Masukkan kode admin untuk reset kalibrasi:");
   if(code === null) return;
   if(code.trim() !== ADMIN_CODE){ alert("❌ Kode admin salah!"); return; }
-  offsetUTM = {dE:0, dN:0};
-  localStorage.removeItem(OFFSET_KEY);
   sessionOffsetLat=0; sessionOffsetLng=0;
+  saveOffsetToStorage(0, 0);  // reset ke Sheets + cache (shared semua user)
+  try { localStorage.removeItem(OFFSET_KEY); } catch(e){}
   renderOffsetBanner();
   let inp = document.getElementById("input").value.trim();
   if(inp && document.getElementById("mapContainer").style.display !== "none") previewMap();
   let ss = document.getElementById("saveStatus");
   ss.className="ok"; ss.style.display="block";
-  ss.textContent="🔄 Kalibrasi direset ke 0.";
+  ss.textContent="🔄 Kalibrasi direset ke 0. Semua pengguna akan mendapat nilai baru.";
 }
 
 // ============================================================
