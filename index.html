@@ -48,75 +48,105 @@ input,textarea{
   font-family:'Poppins',sans-serif;
   font-size:14px;
   outline:none;
+  background:rgba(255,255,255,0.92);
+  color:#1a1a2e;
 }
-
 textarea{height:160px;resize:none;}
 
-.btn-row{display:flex;gap:10px;margin-top:15px;}
+.btn-row{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap;}
 
 button{
-  flex:1;
-  padding:14px;
-  border:none;
-  border-radius:10px;
-  font-weight:600;
-  font-size:14px;
-  cursor:pointer;
-  color:white;
-  transition:0.3s;
+  flex:1;padding:14px;border:none;border-radius:10px;
+  font-weight:600;font-size:14px;cursor:pointer;color:white;
+  transition:0.3s;min-width:120px;
 }
-
 button:hover{transform:scale(1.02);}
+button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
-#btnPreview{
-  background:linear-gradient(90deg,#11998e,#38ef7d);
-  color:#0f2027;
-}
-
-#btnDownload{
-  background:linear-gradient(90deg,#ff416c,#ff4b2b);
-  display:none;
-}
+#btnPreview{ background:linear-gradient(90deg,#11998e,#38ef7d); color:#0f2027; }
+#btnDownload{ background:linear-gradient(90deg,#ff416c,#ff4b2b); display:none; }
+#btnDrag{ background:linear-gradient(90deg,#f7971e,#ffd200); color:#1a1a2e; display:none; }
+#btnSave{ background:linear-gradient(90deg,#5f2c82,#49a09d); display:none; }
+#btnResetOffset{ background:rgba(255,255,255,0.12); font-size:12px; flex:0 0 auto; display:none; padding:8px 14px; min-width:unset; }
 
 .result{
-  margin-top:15px;
-  background:rgba(255,255,255,0.1);
-  padding:12px 15px;
-  border-radius:10px;
-  white-space:pre-wrap;
-  font-size:13px;
-  display:none;
+  margin-top:15px;background:rgba(255,255,255,0.1);
+  padding:12px 15px;border-radius:10px;white-space:pre-wrap;
+  font-size:13px;display:none;
+}
+.area-box{
+  margin-top:10px;background:rgba(255,255,255,0.15);
+  padding:12px 15px;border-radius:10px;font-size:14px;
+  font-weight:600;display:none;
 }
 
-.area-box{
-  margin-top:10px;
-  background:rgba(255,255,255,0.15);
-  padding:12px 15px;
-  border-radius:10px;
-  font-size:14px;
-  font-weight:600;
+/* Offset banner */
+#offsetBanner{
   display:none;
+  margin-top:12px;
+  background:rgba(56,239,125,0.12);
+  border:1px solid rgba(56,239,125,0.4);
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  color:#38ef7d;
+  line-height:1.7;
+}
+
+#dragInfo{
+  display:none;margin-top:10px;
+  background:rgba(247,151,30,0.2);border:1px solid rgba(247,151,30,0.5);
+  border-radius:10px;padding:10px 14px;font-size:13px;color:#ffd200;
 }
 
 #mapContainer{
-  margin-top:20px;
-  border-radius:14px;
-  overflow:hidden;
-  height:380px;
-  display:none;
-  border:2px solid rgba(255,255,255,0.15);
-  position:relative;
+  margin-top:20px;border-radius:14px;overflow:hidden;height:380px;
+  display:none;border:2px solid rgba(255,255,255,0.15);position:relative;
 }
-
 #map{height:100%;width:100%;}
+.map-label{font-size:12px;opacity:0.6;margin-top:6px;text-align:center;display:none;}
 
-.map-label{
-  font-size:12px;
-  opacity:0.6;
-  margin-top:6px;
-  text-align:center;
-  display:none;
+/* Modal */
+#adminModal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  z-index:9999;justify-content:center;align-items:center;
 }
+#adminModal.show{display:flex;}
+.modal-box{
+  background:linear-gradient(135deg,#1a2a3a,#2c3e50);
+  border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:28px;
+  width:340px;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:fadeIn 0.3s ease;
+}
+.modal-box h3{font-size:18px;margin-bottom:6px;}
+.modal-box p{font-size:13px;opacity:0.7;margin-bottom:6px;}
+.modal-detail{
+  background:rgba(255,255,255,0.07);border-radius:8px;
+  padding:8px 12px;font-size:12px;margin-bottom:14px;
+  color:rgba(255,255,255,0.75);line-height:1.8;
+}
+.modal-box input{
+  background:rgba(255,255,255,0.15);color:white;
+  border:1px solid rgba(255,255,255,0.25);margin-bottom:12px;
+}
+.modal-box input::placeholder{color:rgba(255,255,255,0.5);}
+.modal-btn-row{display:flex;gap:10px;margin-top:4px;}
+#btnConfirmSave{
+  background:linear-gradient(90deg,#5f2c82,#49a09d);
+  flex:1;padding:11px;border:none;border-radius:8px;
+  font-weight:600;color:white;cursor:pointer;font-size:14px;
+}
+#btnCancelModal{
+  background:rgba(255,255,255,0.1);flex:1;padding:11px;
+  border:none;border-radius:8px;font-weight:600;color:white;cursor:pointer;font-size:14px;
+}
+.modal-error{color:#ff6b6b;font-size:12px;margin-top:4px;}
+
+#saveStatus{
+  display:none;margin-top:10px;padding:10px 14px;border-radius:10px;
+  font-size:13px;font-weight:600;text-align:center;
+}
+#saveStatus.ok{background:rgba(56,239,125,0.2);border:1px solid #38ef7d;color:#38ef7d;}
+#saveStatus.err{background:rgba(255,107,107,0.2);border:1px solid #ff6b6b;color:#ff6b6b;}
 
 .showpass{margin-top:10px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;}
 .error{color:#ff6b6b;font-size:13px;margin-top:8px;}
@@ -146,258 +176,522 @@ button:hover{transform:scale(1.02);}
     Created by <b>Farhan Rizky</b>
   </div>
 
+  <!-- Offset status banner -->
+  <div id="offsetBanner"></div>
+
   <textarea id="input" placeholder="Masukkan koordinat PL (X,Y) per baris&#10;Contoh:&#10;2906.080,-3465.057&#10;2882.905,-3474.441"></textarea>
 
   <div class="btn-row">
-    <button id="btnPreview" onclick="previewMap()">🗺 Preview Peta</button>
+    <button id="btnPreview"  onclick="previewMap()">🗺 Preview Peta</button>
+    <button id="btnDrag"     onclick="toggleDragMode()">✋ Geser Polygon</button>
     <button id="btnDownload" onclick="downloadKML()">⬇️ Download KML</button>
+    <button id="btnSave"     onclick="openAdminModal()">💾 Kalibrasi & Simpan</button>
+    <button id="btnResetOffset" onclick="resetOffset()">🔄 Reset Kalibrasi</button>
+  </div>
+
+  <div id="dragInfo">
+    ✋ <b>Mode Geser Aktif</b> — Seret polygon ke posisi yang benar di atas peta satelit. Klik tombol lagi untuk mengunci.
   </div>
 
   <div class="result" id="output"></div>
   <div class="area-box" id="area"></div>
+  <div id="saveStatus"></div>
 
-  <div id="mapContainer">
-    <div id="map"></div>
-  </div>
+  <div id="mapContainer"><div id="map"></div></div>
   <div class="map-label" id="mapLabel">
-    🛰 Peta Satelit Esri — zoom & geser untuk cek posisi, lalu klik Download KML
+    🛰 Peta Satelit Esri — zoom & geser untuk cek posisi
   </div>
 
   <div class="footer">© 2026 Farhan Rizky | UTM Zone 48N WGS84 | Batam</div>
 </div>
 
-<!-- Leaflet dimuat SEBELUM script utama -->
+<!-- ADMIN SAVE MODAL -->
+<div id="adminModal">
+  <div class="modal-box">
+    <h3>🔑 Kalibrasi Offset</h3>
+    <p>Offset yang akan disimpan permanen:</p>
+    <div class="modal-detail" id="modalOffsetDetail">—</div>
+    <p style="margin-bottom:8px;">Masukkan kode admin untuk mengkonfirmasi.</p>
+    <input type="password" id="adminCode" placeholder="Kode Admin" />
+    <div class="modal-error" id="modalError"></div>
+    <div class="modal-btn-row">
+      <button id="btnCancelModal" onclick="closeAdminModal()">Batal</button>
+      <button id="btnConfirmSave" onclick="confirmSave()">Simpan Kalibrasi</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
+// ============================================================
+//  CONFIG
+// ============================================================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLN-R6Oy6c-zOhxvWaraztHqimXIqdfOjvYPIseXU1YVUifDOyHYLL9Zd4Zikh_aWg/exec";
+const ADMIN_CODE = "FARHAN2026";          // <-- ganti kode admin di sini
+const OFFSET_KEY = "pl_batam_offset";     // localStorage key
 
+// ============================================================
+//  OFFSET STATE
+//  offsetUTM = {dE, dN}  — selisih meter di sistem UTM
+//  Dibaca dari localStorage saat load, disimpan saat admin save
+// ============================================================
+let offsetUTM = {dE: 0, dN: 0};
+
+function loadOffset(){
+  try {
+    let raw = localStorage.getItem(OFFSET_KEY);
+    if(raw){
+      let o = JSON.parse(raw);
+      if(typeof o.dE === "number" && typeof o.dN === "number"){
+        offsetUTM = o;
+      }
+    }
+  } catch(e){}
+  renderOffsetBanner();
+}
+
+function saveOffsetToStorage(dE, dN){
+  offsetUTM = {dE, dN};
+  localStorage.setItem(OFFSET_KEY, JSON.stringify(offsetUTM));
+  renderOffsetBanner();
+}
+
+function resetOffset(){
+  if(!confirm("Reset kalibrasi offset ke 0? Hanya admin yang seharusnya melakukan ini.")) return;
+  offsetUTM = {dE:0, dN:0};
+  localStorage.removeItem(OFFSET_KEY);
+  renderOffsetBanner();
+  // Re-preview jika ada input
+  let inp = document.getElementById("input").value.trim();
+  if(inp && document.getElementById("mapContainer").style.display !== "none"){
+    previewMap();
+  }
+  let ss = document.getElementById("saveStatus");
+  ss.className="ok"; ss.style.display="block";
+  ss.textContent="🔄 Kalibrasi direset ke 0 oleh admin.";
+}
+
+function renderOffsetBanner(){
+  let banner = document.getElementById("offsetBanner");
+  let hasOffset = (offsetUTM.dE !== 0 || offsetUTM.dN !== 0);
+  if(hasOffset){
+    banner.style.display = "block";
+    banner.innerHTML =
+      `✅ <b>Kalibrasi Aktif</b> — Offset UTM tersimpan:<br>` +
+      `ΔE = <b>${offsetUTM.dE >= 0 ? "+" : ""}${offsetUTM.dE.toFixed(3)} m</b> &nbsp;|&nbsp; ` +
+      `ΔN = <b>${offsetUTM.dN >= 0 ? "+" : ""}${offsetUTM.dN.toFixed(3)} m</b><br>` +
+      `<span style="font-size:11px;opacity:0.75;">Semua konversi PL→UTM berikutnya otomatis menggunakan offset ini.</span>`;
+    document.getElementById("btnResetOffset").style.display = "block";
+  } else {
+    banner.style.display = "none";
+    document.getElementById("btnResetOffset").style.display = "none";
+  }
+}
+
+// ============================================================
+//  STATE
+// ============================================================
+let storedUTM_raw  = [];   // UTM TANPA offset (langsung dari formula PLtoUTM)
+let storedUTM      = [];   // UTM + offset (yang ditampilkan & dipakai)
+let storedLatLon   = [];   // LatLon hasil dari storedUTM (dengan offset)
+let leafletMap     = null;
+let polygon        = null;
+let markers        = [];
+let dragActive     = false;
+let isDragging     = false;
+let dragStart      = null;
+let lastTouch      = null;
+let currentUser    = "";
+
+// offset sesi ini (akumulasi gesek pada sesi ini, belum disimpan)
+let sessionOffsetLat = 0;
+let sessionOffsetLng = 0;
+
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// ============================================================
+//  LOGIN
+// ============================================================
 function togglePassword(){
-  let p = document.getElementById("password");
-  p.type = p.type === "password" ? "text" : "password";
+  let p=document.getElementById("password");
+  p.type=p.type==="password"?"text":"password";
 }
 
 function login(){
-  let u = document.getElementById("username").value.trim();
-  let p = document.getElementById("password").value.trim();
-  let btn = document.querySelector("#loginBox button");
-  let resultEl = document.getElementById("loginResult");
+  let u=document.getElementById("username").value.trim();
+  let p=document.getElementById("password").value.trim();
+  let btn=document.querySelector("#loginBox button");
+  let res=document.getElementById("loginResult");
 
-  if(!u || !p){
-    resultEl.textContent = "⚠️ Username dan password tidak boleh kosong.";
-    return;
-  }
+  if(!u||!p){res.textContent="⚠️ Username dan password tidak boleh kosong.";return;}
+  btn.textContent="Memeriksa..."; btn.disabled=true; res.textContent="";
 
-  btn.textContent = "Memeriksa...";
-  btn.disabled = true;
-  resultEl.textContent = "";
-
-  // Hapus script JSONP lama kalau ada
-  let oldScript = document.getElementById("jsonp_script");
-  if(oldScript) oldScript.remove();
-
-  // Buat nama callback unik
-  const cbName = "jsonp_cb_" + Date.now();
-
-  // Callback global
-  window[cbName] = function(result){
+  let old=document.getElementById("jsonp_script"); if(old)old.remove();
+  const cbName="jsonp_cb_"+Date.now();
+  window[cbName]=function(result){
     delete window[cbName];
-    let s = document.getElementById("jsonp_script");
-    if(s) s.remove();
-
-    if(result === "OK"){
-      currentUser = u;
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("app").style.display = "block";
+    let s=document.getElementById("jsonp_script"); if(s)s.remove();
+    if(result==="OK"){
+      currentUser=u;
+      document.getElementById("loginBox").style.display="none";
+      document.getElementById("app").style.display="block";
+      loadOffset();
     } else {
-      resultEl.textContent = "❌ Username atau password salah";
-      btn.textContent = "Login";
-      btn.disabled = false;
+      res.textContent="❌ Username atau password salah";
+      btn.textContent="Login"; btn.disabled=false;
     }
   };
-
-  // Inject script tag
-  let script = document.createElement("script");
-  script.id  = "jsonp_script";
-  script.src = SCRIPT_URL
-    + "?u=" + encodeURIComponent(u)
-    + "&p=" + encodeURIComponent(p)
-    + "&callback=" + cbName;
-
-  script.onerror = function(){
-    delete window[cbName];
-    script.remove();
-    resultEl.textContent = "⚠️ Gagal terhubung, cek koneksi internet.";
-    btn.textContent = "Login";
-    btn.disabled = false;
+  let script=document.createElement("script");
+  script.id="jsonp_script";
+  script.src=SCRIPT_URL+"?u="+encodeURIComponent(u)+"&p="+encodeURIComponent(p)+"&callback="+cbName;
+  script.onerror=function(){
+    delete window[cbName]; script.remove();
+    res.textContent="⚠️ Gagal terhubung, cek koneksi internet.";
+    btn.textContent="Login"; btn.disabled=false;
   };
-
   document.body.appendChild(script);
 }
 
+// ============================================================
+//  COORDINATE MATH
+// ============================================================
 function PLtoUTM(x, y){
-  let E = 386103.9199999999
-        + (1.0000009999999987 * x)
-        + (0.0000020000000001 * y);
-  let N = 128910.05799999999
-        + (0.0000020000000000 * x)
-        + (0.9999999999999989 * y);
+  let E = 386103.9199999999 + (1.0000009999999987*x) + (0.0000020000000001*y);
+  let N = 128910.05799999999 + (0.0000020000000000*x) + (0.9999999999999989*y);
   return [E, N];
 }
 
+// Apply stored offset to a raw UTM point
+function applyOffset(E, N){
+  return [E + offsetUTM.dE, N + offsetUTM.dN];
+}
+
 function UTMtoLatLon(E, N){
-  const a  = 6378137.0;
-  const e  = 0.081819190842622;
-  const k0 = 0.9996;
-  const zone = 48;
-  const λ0 = ((zone - 1)*6 - 180 + 3) * Math.PI/180;
-
-  let x = E - 500000;
-  let y = N;
-
-  let M  = y / k0;
-  let μ  = M / (a*(1 - e*e/4 - 3*e**4/64 - 5*e**6/256));
-  let e1 = (1 - Math.sqrt(1 - e*e)) / (1 + Math.sqrt(1 - e*e));
-
-  let fp = μ
-    + (3*e1/2 - 27*e1**3/32)*Math.sin(2*μ)
-    + (21*e1**2/16 - 55*e1**4/32)*Math.sin(4*μ);
-
-  let C1 = (e*e/(1-e*e))*Math.cos(fp)**2;
-  let T1 = Math.tan(fp)**2;
-  let N1 = a / Math.sqrt(1 - e*e*Math.sin(fp)**2);
-  let R1 = a*(1-e*e) / Math.pow(1 - e*e*Math.sin(fp)**2, 1.5);
-  let D  = x / (N1*k0);
-
-  let lat = fp - (N1*Math.tan(fp)/R1)*
-    (D*D/2 - (5+3*T1+10*C1-4*C1*C1-9*(e*e/(1-e*e)))*D**4/24);
-  let lon = λ0 + (D - (1+2*T1+C1)*D**3/6)/Math.cos(fp);
-
+  const a=6378137.0,e=0.081819190842622,k0=0.9996,zone=48;
+  const λ0=((zone-1)*6-180+3)*Math.PI/180;
+  let x=E-500000,y=N;
+  let M=y/k0;
+  let μ=M/(a*(1-e*e/4-3*e**4/64-5*e**6/256));
+  let e1=(1-Math.sqrt(1-e*e))/(1+Math.sqrt(1-e*e));
+  let fp=μ+(3*e1/2-27*e1**3/32)*Math.sin(2*μ)+(21*e1**2/16-55*e1**4/32)*Math.sin(4*μ);
+  let C1=(e*e/(1-e*e))*Math.cos(fp)**2;
+  let T1=Math.tan(fp)**2;
+  let N1=a/Math.sqrt(1-e*e*Math.sin(fp)**2);
+  let R1=a*(1-e*e)/Math.pow(1-e*e*Math.sin(fp)**2,1.5);
+  let D=x/(N1*k0);
+  let lat=fp-(N1*Math.tan(fp)/R1)*(D*D/2-(5+3*T1+10*C1-4*C1*C1-9*(e*e/(1-e*e)))*D**4/24);
+  let lon=λ0+(D-(1+2*T1+C1)*D**3/6)/Math.cos(fp);
   return [lat*180/Math.PI, lon*180/Math.PI];
 }
 
+function LatLonToUTM(lat, lon){
+  const a=6378137.0,e=0.081819190842622,k0=0.9996,zone=48;
+  const λ0=((zone-1)*6-180+3)*Math.PI/180;
+  const φ=lat*Math.PI/180,λ=lon*Math.PI/180;
+  const N=a/Math.sqrt(1-e*e*Math.sin(φ)**2);
+  const T=Math.tan(φ)**2;
+  const C=(e*e/(1-e*e))*Math.cos(φ)**2;
+  const A=(λ-λ0)*Math.cos(φ);
+  const M=a*((1-e*e/4-3*e**4/64-5*e**6/256)*φ
+            -(3*e*e/8+3*e**4/32+45*e**6/1024)*Math.sin(2*φ)
+            +(15*e**4/256+45*e**6/1024)*Math.sin(4*φ)
+            -(35*e**6/3072)*Math.sin(6*φ));
+  const E=k0*N*(A+(1-T+C)*A**3/6+(5-18*T+T*T+72*C-58*(e*e/(1-e*e)))*A**5/120)+500000;
+  const Nout=k0*(M+N*Math.tan(φ)*(A*A/2+(5-T+9*C+4*C*C)*A**4/24+(61-58*T+T*T+600*C-330*(e*e/(1-e*e)))*A**6/720));
+  return [E, Nout];
+}
+
 function polygonArea(points){
-  let area = 0;
-  for(let i = 0; i < points.length; i++){
-    let j = (i+1) % points.length;
-    area += points[i][0]*points[j][1];
-    area -= points[j][0]*points[i][1];
+  let area=0;
+  for(let i=0;i<points.length;i++){
+    let j=(i+1)%points.length;
+    area+=points[i][0]*points[j][1];
+    area-=points[j][0]*points[i][1];
   }
   return Math.abs(area/2);
 }
 
-let storedUTM    = [];
-let storedLatLon = [];
-let leafletMap   = null;
-const letters    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-let currentUser  = "";
-
-function saveToSheet(rawInput, utmOutput, luasText){
-  const cbName = "save_cb_" + Date.now();
-  const script = document.createElement("script");
-
-  window[cbName] = function(result){
-    delete window[cbName];
-    let s = document.getElementById("save_script");
-    if(s) s.remove();
-  };
-
-  script.id  = "save_script";
-  script.src = SCRIPT_URL
-    + "?action=save"
-    + "&username=" + encodeURIComponent(currentUser)
-    + "&raw="       + encodeURIComponent(rawInput)
-    + "&converted=" + encodeURIComponent(utmOutput)
-    + "&luas="      + encodeURIComponent(luasText)
-    + "&callback="  + cbName;
-
-  document.body.appendChild(script);
-}
-
+// ============================================================
+//  PREVIEW MAP
+// ============================================================
 function previewMap(){
-  if(typeof L === "undefined"){
-    alert("Library peta belum siap, coba refresh halaman.");
-    return;
-  }
+  if(typeof L==="undefined"){alert("Library peta belum siap, coba refresh.");return;}
 
-  let lines = document.getElementById("input").value.trim().split("\n");
-  storedUTM    = [];
-  storedLatLon = [];
-  let output   = "";
+  let lines=document.getElementById("input").value.trim().split("\n");
+  storedUTM_raw=[]; storedUTM=[]; storedLatLon=[];
+  sessionOffsetLat=0; sessionOffsetLng=0;
+  let output="";
 
-  lines.forEach((line, i) => {
-    let parts = line.trim().split(",");
-    if(parts.length === 2){
-      let x = parseFloat(parts[0]);
-      let y = parseFloat(parts[1]);
-      if(isNaN(x) || isNaN(y)) return;
-      let utm    = PLtoUTM(x, y);
-      let latlon = UTMtoLatLon(utm[0], utm[1]);
-      storedUTM.push(utm);
+  lines.forEach((line,i)=>{
+    let parts=line.trim().split(",");
+    if(parts.length===2){
+      let x=parseFloat(parts[0]),y=parseFloat(parts[1]);
+      if(isNaN(x)||isNaN(y)) return;
+      let raw=PLtoUTM(x,y);
+      let withOffset=applyOffset(raw[0],raw[1]);
+      let latlon=UTMtoLatLon(withOffset[0],withOffset[1]);
+      storedUTM_raw.push(raw);
+      storedUTM.push(withOffset);
       storedLatLon.push(latlon);
-      output += letters[i] + " : " + utm[0].toFixed(3) + " , " + utm[1].toFixed(3) + "\n";
+      output+=letters[i]+" : "+withOffset[0].toFixed(3)+" , "+withOffset[1].toFixed(3)+"\n";
     }
   });
 
-  let outEl = document.getElementById("output");
-  outEl.style.display = "block";
-  outEl.textContent = output || "Tidak ada data valid.";
+  let outEl=document.getElementById("output");
+  outEl.style.display="block";
+  outEl.textContent=output||"Tidak ada data valid.";
 
-  if(storedUTM.length < 3){
-    alert("Minimal 3 titik koordinat diperlukan.");
+  if(storedUTM.length<3){alert("Minimal 3 titik koordinat diperlukan.");return;}
+
+  let area=polygonArea(storedUTM);
+  let areaEl=document.getElementById("area");
+  areaEl.style.display="block";
+  areaEl.textContent="📐 Luas Bidang : "+area.toFixed(2)+" m²  ( "+(area/10000).toFixed(4)+" Ha )";
+
+  let rawInput=document.getElementById("input").value.trim();
+  saveToSheet(rawInput, output.trim(), area.toFixed(2)+" m² / "+(area/10000).toFixed(4)+" Ha");
+
+  document.getElementById("mapContainer").style.display="block";
+  document.getElementById("mapLabel").style.display="block";
+  document.getElementById("btnDownload").style.display="block";
+  document.getElementById("btnDrag").style.display="block";
+  document.getElementById("btnSave").style.display="block";
+  document.getElementById("saveStatus").style.display="none";
+
+  // Reset drag button
+  dragActive=false;
+  document.getElementById("btnDrag").style.background="linear-gradient(90deg,#f7971e,#ffd200)";
+  document.getElementById("btnDrag").textContent="✋ Geser Polygon";
+  document.getElementById("btnDrag").style.color="#1a1a2e";
+  document.getElementById("dragInfo").style.display="none";
+
+  buildMap();
+}
+
+// ============================================================
+//  MAP
+// ============================================================
+function buildMap(){
+  if(leafletMap){leafletMap.remove();leafletMap=null;}
+  leafletMap=L.map("map",{zoomControl:true});
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {attribution:"Tiles © Esri",maxZoom:20,maxNativeZoom:19}).addTo(leafletMap);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+    {opacity:0.7,maxZoom:20,maxNativeZoom:19}).addTo(leafletMap);
+
+  drawPolygon();
+  leafletMap.fitBounds(polygon.getBounds(),{padding:[40,40]});
+  setTimeout(()=>{leafletMap.invalidateSize();},400);
+
+  leafletMap.on("mousedown", onMapMouseDown);
+  leafletMap.on("mousemove", onMapMouseMove);
+  leafletMap.on("mouseup",   onMapMouseUp);
+  leafletMap.on("touchstart", onMapTouchStart, {passive:false});
+  leafletMap.on("touchmove",  onMapTouchMove,  {passive:false});
+  leafletMap.on("touchend",   onMapTouchEnd);
+}
+
+function drawPolygon(){
+  if(polygon) polygon.remove();
+  markers.forEach(m=>m.remove()); markers=[];
+  let latlngs=storedLatLon.map(p=>[p[0],p[1]]);
+  polygon=L.polygon(latlngs,{color:"#ff416c",weight:3,fillColor:"#ff416c",fillOpacity:0.3}).addTo(leafletMap);
+  storedLatLon.forEach((p,i)=>{
+    let icon=L.divIcon({
+      className:"",
+      html:`<div style="background:#ff416c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.6);font-family:Poppins,sans-serif;">${letters[i]}</div>`,
+      iconSize:[24,24],iconAnchor:[12,12]
+    });
+    markers.push(L.marker([p[0],p[1]],{icon}).addTo(leafletMap));
+  });
+}
+
+// ============================================================
+//  DRAG MODE
+// ============================================================
+function toggleDragMode(){
+  dragActive=!dragActive;
+  let btn=document.getElementById("btnDrag");
+  let info=document.getElementById("dragInfo");
+  if(dragActive){
+    btn.style.background="linear-gradient(90deg,#e53935,#ff6b6b)";
+    btn.textContent="🔒 Kunci Posisi"; btn.style.color="white";
+    info.style.display="block";
+    leafletMap.dragging.disable();
+  } else {
+    btn.style.background="linear-gradient(90deg,#f7971e,#ffd200)";
+    btn.textContent="✋ Geser Polygon"; btn.style.color="#1a1a2e";
+    info.style.display="none";
+    leafletMap.dragging.enable();
+  }
+}
+
+function onMapMouseDown(e){
+  if(!dragActive) return;
+  isDragging=true; dragStart={lat:e.latlng.lat,lng:e.latlng.lng};
+  leafletMap.getContainer().style.cursor="grabbing";
+}
+function onMapMouseMove(e){
+  if(!dragActive||!isDragging||!dragStart) return;
+  let dLat=e.latlng.lat-dragStart.lat, dLng=e.latlng.lng-dragStart.lng;
+  shiftPolygon(dLat,dLng);
+  dragStart={lat:e.latlng.lat,lng:e.latlng.lng};
+}
+function onMapMouseUp(e){
+  if(!dragActive) return;
+  isDragging=false; dragStart=null;
+  leafletMap.getContainer().style.cursor="grab";
+  updateOutputAfterDrag();
+}
+
+function onMapTouchStart(e){
+  if(!dragActive) return;
+  e.originalEvent.preventDefault();
+  let t=e.originalEvent.touches[0];
+  let rect=leafletMap.getContainer().getBoundingClientRect();
+  lastTouch=leafletMap.containerPointToLatLng(L.point(t.clientX-rect.left,t.clientY-rect.top));
+  isDragging=true;
+}
+function onMapTouchMove(e){
+  if(!dragActive||!isDragging||!lastTouch) return;
+  e.originalEvent.preventDefault();
+  let t=e.originalEvent.touches[0];
+  let rect=leafletMap.getContainer().getBoundingClientRect();
+  let cur=leafletMap.containerPointToLatLng(L.point(t.clientX-rect.left,t.clientY-rect.top));
+  shiftPolygon(cur.lat-lastTouch.lat, cur.lng-lastTouch.lng);
+  lastTouch=cur;
+}
+function onMapTouchEnd(){
+  if(!dragActive) return;
+  isDragging=false; lastTouch=null;
+  updateOutputAfterDrag();
+}
+
+function shiftPolygon(dLat, dLng){
+  sessionOffsetLat += dLat;
+  sessionOffsetLng += dLng;
+  storedLatLon=storedLatLon.map(p=>[p[0]+dLat, p[1]+dLng]);
+  drawPolygon();
+}
+
+function updateOutputAfterDrag(){
+  // Recompute UTM dari LatLon baru
+  storedUTM=storedLatLon.map(p=>LatLonToUTM(p[0],p[1]));
+  let output="";
+  storedLatLon.forEach((p,i)=>{
+    output+=letters[i]+" : "+storedUTM[i][0].toFixed(3)+" , "+storedUTM[i][1].toFixed(3)+"\n";
+  });
+  document.getElementById("output").textContent=output;
+  let area=polygonArea(storedUTM);
+  document.getElementById("area").textContent=
+    "📐 Luas Bidang : "+area.toFixed(2)+" m²  ( "+(area/10000).toFixed(4)+" Ha )";
+  document.getElementById("saveStatus").style.display="none";
+}
+
+// ============================================================
+//  Hitung total offset baru (offset lama + gesek sesi ini)
+//  Gesek sesi ini di-convert ke UTM delta (meter)
+// ============================================================
+function computeNewOffsetUTM(){
+  // Ambil titik tengah polygon (rata-rata) sebagai referensi
+  let avgLat=storedLatLon.reduce((s,p)=>s+p[0],0)/storedLatLon.length;
+  let avgLng=storedLatLon.reduce((s,p)=>s+p[1],0)/storedLatLon.length;
+
+  // Konversi delta LatLon → meter UTM (aproksimasi)
+  // 1 derajat lintang ≈ 111320 m
+  // 1 derajat bujur  ≈ 111320 * cos(lat) m
+  let metersPerLat = 111320;
+  let metersPerLng = 111320 * Math.cos(avgLat * Math.PI/180);
+
+  let dE_session = sessionOffsetLng * metersPerLng;
+  let dN_session = sessionOffsetLat * metersPerLat;
+
+  // Total offset baru = offset lama + gesek sesi ini
+  return {
+    dE: offsetUTM.dE + dE_session,
+    dN: offsetUTM.dN + dN_session
+  };
+}
+
+// ============================================================
+//  ADMIN MODAL
+// ============================================================
+function openAdminModal(){
+  if(sessionOffsetLat===0 && sessionOffsetLng===0 && offsetUTM.dE===0 && offsetUTM.dN===0){
+    alert("Belum ada pergeseran. Gunakan mode Geser Polygon terlebih dahulu.");
     return;
   }
 
-  let area = polygonArea(storedUTM);
-  let areaEl = document.getElementById("area");
-  areaEl.style.display = "block";
-  areaEl.textContent = "📐 Luas Bidang : " + area.toFixed(2) + " m²  ( " + (area/10000).toFixed(4) + " Ha )";
+  let newOffset = computeNewOffsetUTM();
+  document.getElementById("modalOffsetDetail").innerHTML =
+    `ΔE (Timur) : <b>${newOffset.dE >= 0 ? "+" : ""}${newOffset.dE.toFixed(3)} m</b><br>` +
+    `ΔN (Utara) : <b>${newOffset.dN >= 0 ? "+" : ""}${newOffset.dN.toFixed(3)} m</b><br>` +
+    `<span style="font-size:11px;opacity:0.7;">Semua input PL→UTM berikutnya akan ditambah offset ini secara otomatis.</span>`;
 
-  // Simpan ke Sheets & kirim notif email
-  let rawInput  = document.getElementById("input").value.trim();
-  saveToSheet(rawInput, output.trim(), area.toFixed(2) + " m² / " + (area/10000).toFixed(4) + " Ha");
-
-  document.getElementById("mapContainer").style.display = "block";
-  document.getElementById("mapLabel").style.display     = "block";
-  document.getElementById("btnDownload").style.display  = "block";
-
-  if(leafletMap){ leafletMap.remove(); leafletMap = null; }
-
-  leafletMap = L.map("map", { zoomControl:true });
-
-  L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    { attribution:"Tiles © Esri", maxZoom:20, maxNativeZoom:19 }
-  ).addTo(leafletMap);
-
-  L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-    { opacity:0.7, maxZoom:20, maxNativeZoom:19 }
-  ).addTo(leafletMap);
-
-  let latlngs = storedLatLon.map(p => [p[0], p[1]]);
-  let polygon = L.polygon(latlngs, {
-    color:"#ff416c", weight:3,
-    fillColor:"#ff416c", fillOpacity:0.3
-  }).addTo(leafletMap);
-
-  storedLatLon.forEach((p, i) => {
-    let icon = L.divIcon({
-      className:"",
-      html:`<div style="background:#ff416c;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.6);font-family:Poppins,sans-serif;">${letters[i]}</div>`,
-      iconSize:[24,24], iconAnchor:[12,12]
-    });
-    L.marker([p[0],p[1]],{icon}).addTo(leafletMap);
-  });
-
-  leafletMap.fitBounds(polygon.getBounds(), {padding:[40,40]});
-  setTimeout(()=>{ leafletMap.invalidateSize(); }, 400);
+  document.getElementById("adminCode").value="";
+  document.getElementById("modalError").textContent="";
+  document.getElementById("adminModal").classList.add("show");
+  setTimeout(()=>document.getElementById("adminCode").focus(),100);
 }
 
-function downloadKML(){
-  if(storedLatLon.length < 3){ alert("Lakukan Preview terlebih dahulu."); return; }
+function closeAdminModal(){
+  document.getElementById("adminModal").classList.remove("show");
+}
 
-  let kml = `<?xml version="1.0" encoding="UTF-8"?>
+function confirmSave(){
+  let code=document.getElementById("adminCode").value.trim();
+  if(code!==ADMIN_CODE){
+    document.getElementById("modalError").textContent="❌ Kode admin salah!";
+    return;
+  }
+  closeAdminModal();
+
+  // Hitung & simpan offset baru
+  let newOffset=computeNewOffsetUTM();
+  saveOffsetToStorage(newOffset.dE, newOffset.dN);
+
+  // Reset session offset (sudah digabung ke stored offset)
+  sessionOffsetLat=0; sessionOffsetLng=0;
+
+  // Simpan ke Sheets
+  let output="";
+  storedLatLon.forEach((p,i)=>{
+    output+=letters[i]+" : "+storedUTM[i][0].toFixed(3)+" , "+storedUTM[i][1].toFixed(3)+"\n";
+  });
+  let area=polygonArea(storedUTM);
+  let luasText=area.toFixed(2)+" m² / "+(area/10000).toFixed(4)+" Ha";
+  saveToSheet(document.getElementById("input").value.trim(), output.trim(), luasText);
+
+  // Tampilkan sukses
+  let ss=document.getElementById("saveStatus");
+  ss.className="ok"; ss.style.display="block";
+  ss.textContent="✅ Kalibrasi offset berhasil disimpan! Semua konversi berikutnya otomatis terkoreksi.";
+}
+
+// ============================================================
+//  SAVE TO GOOGLE SHEETS
+// ============================================================
+function saveToSheet(rawInput, utmOutput, luasText){
+  const cbName="save_cb_"+Date.now();
+  const script=document.createElement("script");
+  window[cbName]=function(){delete window[cbName]; let s=document.getElementById("save_script");if(s)s.remove();};
+  script.id="save_script";
+  script.src=SCRIPT_URL
+    +"?action=save"
+    +"&username="+encodeURIComponent(currentUser)
+    +"&raw="+encodeURIComponent(rawInput)
+    +"&converted="+encodeURIComponent(utmOutput)
+    +"&luas="+encodeURIComponent(luasText)
+    +"&callback="+cbName;
+  document.body.appendChild(script);
+}
+
+// ============================================================
+//  DOWNLOAD KML
+// ============================================================
+function downloadKML(){
+  if(storedLatLon.length<3){alert("Lakukan Preview terlebih dahulu.");return;}
+  let kml=`<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
 <Document>
 <n>PL Batam - Farhan Rizky</n>
@@ -410,18 +704,22 @@ function downloadKML(){
 <styleUrl>#polyStyle</styleUrl>
 <Polygon>
 <outerBoundaryIs><LinearRing><coordinates>`;
-
-  storedLatLon.forEach(p => { kml += `${p[1]},${p[0]},0 `; });
-  kml += `${storedLatLon[0][1]},${storedLatLon[0][0]},0`;
-  kml += `</coordinates></LinearRing></outerBoundaryIs>\n</Polygon>\n</Placemark>\n</Document></kml>`;
-
-  let blob = new Blob([kml], {type:"application/vnd.google-earth.kml+xml"});
-  let link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "PL_Batam_Farhan_Rizky.kml";
-  link.click();
+  storedLatLon.forEach(p=>{kml+=`${p[1]},${p[0]},0 `;});
+  kml+=`${storedLatLon[0][1]},${storedLatLon[0][0]},0`;
+  kml+=`</coordinates></LinearRing></outerBoundaryIs>\n</Polygon>\n</Placemark>\n</Document></kml>`;
+  let blob=new Blob([kml],{type:"application/vnd.google-earth.kml+xml"});
+  let link=document.createElement("a");
+  link.href=URL.createObjectURL(blob); link.download="PL_Batam_Farhan_Rizky.kml"; link.click();
 }
-</script>
 
+// ============================================================
+//  KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener("keydown",function(e){
+  let modal=document.getElementById("adminModal");
+  if(e.key==="Enter" && modal.classList.contains("show")) confirmSave();
+  if(e.key==="Escape" && modal.classList.contains("show")) closeAdminModal();
+});
+</script>
 </body>
 </html>
